@@ -1,38 +1,37 @@
-"""
-This is a echo bot.
-It echoes any incoming text messages.
-"""
-
-import logging
-
-from aiogram import Bot, Dispatcher, executor, types
-
-API_TOKEN = '5731462370:AAGXikaid_W3aVqNul97k0w2bbffzbMJ8Sg'
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-# Initialize bot and dispatcher
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
-
-
-@dp.message_handler(commands=['start', 'help'])
-async def send_welcome(message: types.Message):
-    """
-    This handler will be called when user sends `/start` or `/help` command
-    """
-    await message.reply("Qannay !!")
+# API_TOKEN = '5731462370:AAGXikaid_W3aVqNul97k0w2bbffzbMJ8Sg'
+import requests
+import json
 
 
 
-@dp.message_handler()
-async def echo(message: types.Message):
-    # old style:
-    # await bot.send_message(message.chat.id, message.text)
-
-    await message.answer(message.text)
+BASE_URL = 'http://127.0.0.1:8000'
 
 
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+def create_user(username, name, user_id):
+    url = f'{BASE_URL}/bot-users'
+    response = requests.get(url=url).text
+    data = json.loads(response)
+    user_exist = False
+    for i in data:
+        if i['user_id'] == str(user_id):
+            user_exist = True
+            break
+    if user_exist == False:
+         requests.post(url=url, data={'username':username, 'name':name, 'user_id':str(user_id)})
+         return 'Create user'
+  
+
+
+def create_inventory(body, user_id, name):
+    url = f'{BASE_URL}/inventory'
+    post = requests.post(url=url, 
+    data={
+    'name':name,
+    'body':body, 
+    'user_id':user_id,
+    })
+    return 'Xabar yuborildi'
+    print(post)
+
+create_inventory('0080', 'text', 'name')
+
